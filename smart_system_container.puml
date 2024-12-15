@@ -1,0 +1,23 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+AddRelTag("invisible", $lineColor="white",$textColor="white")
+
+title Smart Device Control System
+
+top to bottom direction
+
+Person(user, "User", "[A user of Smart Device Control System]")
+System(ControlSystem, "Smart Device Control System", "Provide current data and set new parameters")
+System_Ext(devices, "Smart Devices", "Smart devices that control by system")
+
+
+Rel(user,ControlSystem,"Recieve current data")
+Rel(user, ControlSystem, "Register new device")
+Rel(user, ControlSystem, "Set desired value")
+
+Rel_Down(devices,ControlSystem, "Send current data")
+Rel_Down(ControlSystem,devices,"just for vertical layout",$tags="invisible")
+Rel_Down(devices,ControlSystem, "Pull new parameter value")
+
+@enduml

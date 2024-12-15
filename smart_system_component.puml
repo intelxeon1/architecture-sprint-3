@@ -1,0 +1,51 @@
+@startuml
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/main/icons/devicons
+!includeurl DEVICONS/postgresql.puml
+
+AddRelTag("invisible", $lineColor="white",$textColor="white")
+
+title Smart Device Control System
+
+
+Container(Gateway,"Api Gateway", "", "Handles user requests, initiate web socket") 
+Container(DataSrv, "Data devices service", "", "Responsible for data from smart devices") 
+Container_Boundary(CtrlSrv, "Control service", "", "Impelement the core control logic") {
+  Component(API,"API Controller","","Handle http request from gateway")
+  Component(RegSrv,"Register Controller","","Register devices and provide data to other container")
+  Component(DvcCtrl,"Device Controller","","Implement business logic to work with device")
+  Component(CommCtrl,"In/Out Service","","Implement Kafka async commutication")
+} 
+
+ContainerDb(CtrlDb, "Database", "Postgre SQL", "Hold registrated devices, control values", $sprite="postgresql")
+    
+Container(ComSrv, "Communicaton service", "", "Communicate with Smart Devices") 
+
+
+
+' Gateway
+Rel(Gateway, API, "Register devices, set control value")
+
+' Internal communications
+Rel(CommCtrl, ComSrv, "Send new control value, device register data","Kafka")
+Rel(DataSrv,CommCtrl, "Processed device data" , "Kafka")
+
+Rel(API,RegSrv,"Request to registre devices" , "Kafka")
+Rel_Down(RegSrv,CommCtrl, "device register data","" )
+Rel(CommCtrl,RegSrv,"status of register procedure","" )
+
+Rel_Down(DvcCtrl,CommCtrl,"Send new parameter value","" )
+Rel_Up(CommCtrl,DvcCtrl,"Processed device data","" )
+
+Rel(CommCtrl,DataSrv, "device register data" , "Kafka")
+Rel(API,DvcCtrl,"Request to registre devices" , "Kafka")
+
+
+' Databases
+Rel(RegSrv,CtrlDb, "Write devices data like id,type etc" , "SQL/TCP")
+Rel(DvcCtrl,CtrlDb, "Get reg devices data, write new control value, device state" , "SQL/TCP")
+
+
+
+@enduml

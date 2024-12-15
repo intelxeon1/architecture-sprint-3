@@ -1,0 +1,60 @@
+@startuml
+
+skinparam linetype ortho
+
+entity "User" as user {
+  *user_id : uid <<generated>>
+  --
+  *name : text
+  description : text
+}
+
+entity "Device" as dvc {
+  *device_id : uid <<generated>>  
+  --
+  *device_type : number <<FK>>
+  *serial_number: number
+  *is registered: boolean
+  current_state: json
+  last_conrol_value: json
+  device_description : text
+}
+
+entity "DeviceType" as dvctype {
+  *device_type_id: number 
+  --
+  *protocol_type: text
+  description: text
+}
+
+entity "DeviceLink" as ud {
+    *device: uid <<FK>>
+    *user: uid <<FK>>
+}
+
+entity "DeviceParams" as dparams {
+  *param_id: id
+  *device: uid <<FK>> 
+  --
+  description : text
+}
+
+entity "DeviceData" as data {
+  *time: timestamp
+  *device: uid <<FK>>  
+  *param: id <<FK>>
+  --
+  value : double
+}
+
+
+ud }o--|| user
+ud }o--|| dvc
+
+dvc }|--|| dvctype
+
+dparams }|--|| dvc
+
+data }o--|| dparams
+
+@enduml

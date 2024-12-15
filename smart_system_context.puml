@@ -1,0 +1,60 @@
+@startuml
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/main/icons/devicons
+!includeurl DEVICONS/postgresql.puml
+
+
+AddRelTag("invisible", $lineColor="white",$textColor="white")
+
+title Smart Device Control System
+
+
+
+
+Person(user, "User", "A user of Smart Device Control System")
+
+' Cистемы
+System_Boundary(ControlSystem, "Smart Device Control System", "Provide current data and set new parameters") {
+  Container(Gateway, "Api Gateway", "", "Handles user requests, initiate web socket")
+  Container(DataSrv, "Data devices service", "", "Responsible for data from smart devices")
+  Container(CtrlSrv, "Control service", "", "Impelement the core control logic")  
+
+  ContainerDb(CtrlDb, "Database", "Postgre SQL", "Hold registrated devices, control values", $sprite="postgresql")
+  ContainerDb(DataDb, "DB with Time series db", "Postgre SQL with extension", "Device Data ", $sprite="postgresql")
+  ContainerDb(ComDb, "Database", "Postgre SQL", "Device register data", $sprite="postgresql")
+
+  Container(ComSrv, "Communicaton service", "", "Communicate with Smart Devices") 
+}
+System_Ext(devices, "Smart Devices", "Smart devices that control by system")
+System(UsrMgmnt, "User management", "Hold user data")
+
+' Gateway
+Rel(user, Gateway, "Register new device","REST")
+Rel(user, Gateway, "Set desired value","REST")
+Rel(user, Gateway, "Get data","REST")
+Rel(Gateway, CtrlSrv, "Register devices, set control value")
+Rel(Gateway, DataSrv, "get device data for a period")
+Rel(Gateway,UsrMgmnt,"Indentify user","REST")
+
+' Internal communications
+Rel(CtrlSrv, ComSrv, "Send new control value, device register data","Kafka")
+Rel(ComSrv, DataSrv, "Raw device data","Kafka")
+Rel(DataSrv,CtrlSrv, "Processed device data" , "Kafka")
+Rel(CtrlSrv,DataSrv, "device register data" , "Kafka")
+
+' Databases
+Rel(CtrlSrv,CtrlDb, "Reads/Writes" , "SQL/TCP")
+Rel(DataSrv,DataDb, "Reads/Writes" , "SQL/TCP")
+Rel(ComSrv,ComDb, "Reads/Writes" , "SQL/TCP")
+
+' External
+Rel(devices,ComSrv, "Send devices data","WiFi")
+Rel(devices,ComSrv,"Pull new parameter value","WiFi")
+
+' Other
+Rel(DataSrv, user, "Recieve current data in real time","WebSocket")
+
+
+@enduml
