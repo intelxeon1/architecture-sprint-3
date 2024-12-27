@@ -31,7 +31,7 @@ Rel(Gateway, API, "Register devices, set control value")
 Rel(CommCtrl, ComSrv, "Send new control value, device register data","Kafka")
 Rel(DataSrv,CommCtrl, "Processed device data" , "Kafka")
 
-Rel(API,RegSrv,"Request to registre devices" , "Kafka")
+Rel(API,RegSrv,"Request to registre devices" , "")
 Rel_Down(RegSrv,CommCtrl, "device register data","" )
 Rel(CommCtrl,RegSrv,"status of register procedure","" )
 
@@ -39,7 +39,7 @@ Rel_Down(DvcCtrl,CommCtrl,"Send new parameter value","" )
 Rel_Up(CommCtrl,DvcCtrl,"Processed device data","" )
 
 Rel(CommCtrl,DataSrv, "device register data" , "Kafka")
-Rel(API,DvcCtrl,"Request to registre devices" , "Kafka")
+Rel(API,DvcCtrl,"Set new param value" , "")
 
 
 ' Databases

@@ -1,0 +1,56 @@
+@startuml
+
+skinparam classFontStyle bold
+
+
+class ApiController {
+    + register_device(),
+    + delete_device()
+    + update_device()
+    + delete_device()
+    + set_control_value()
+}
+class DeviceRegestiry{
+
+    + register_device(),
+    + delete_device()
+    + update_device()
+    + delete_device()
+    + IDeviceController get_device()
+}
+
+class Communicator{
+
+    + received_device_data()
+    + send_data()
+}
+
+interface IDeviceController
+{   
+    + set_control_value()
+    + device_data_callback()
+}
+
+package "DeviceDatabase" {     
+    entity "Device" 
+    entity "DeviceControlValue" 
+}
+
+DeviceRegestiry --> IDeviceController: create
+
+IDeviceController --> HeatController: implement
+IDeviceController --> LightController: implement
+IDeviceController --> VideoController: implement
+
+ApiController --> DeviceRegestiry: uses, create device instance
+
+DeviceRegestiry --> Device: create
+
+IDeviceController --> DeviceControlValue: create
+
+ApiController --> IDeviceController: set control value
+
+IDeviceController --> Communicator: uses
+Communicator --> IDeviceController: data callback
+
+Communicator --> DeviceRegestiry: create device instance
